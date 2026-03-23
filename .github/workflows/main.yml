@@ -1,0 +1,36 @@
+name: Build macOS Application
+
+on:
+  workflow_dispatch: 
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-mac:
+    runs-on: macos-latest
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+
+    - name: 配置 Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: 安装所需依赖
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        pip install -r requirements.txt
+
+    - name: 使用 PyInstaller 打包
+      run: |
+        pyinstaller --onefile automatic_llm_version.py
+
+    # 最关键的就是下面这两行，必须是 v4！
+    - name: 上传打包成品
+      uses: actions/upload-artifact@v4
+      with:
+        name: AutoBot-Mac-Version
+        path: dist/automatic_llm_version
